@@ -1,5 +1,7 @@
 package unalcol.agents.examples.labyrinth.multeseo.universalEater;
 
+import java.util.Random;
+
 import unalcol.agents.Action;
 import unalcol.agents.AgentProgram;
 import unalcol.agents.Percept;
@@ -186,8 +188,9 @@ public abstract class EaterTeseoAgentProgram implements AgentProgram {
 	 * @return boolean
 	 */
 	public boolean goalAchieved(Percept p) {
+
 		return (((Boolean) p.getAttribute(language.getPercept(4)))
 				.booleanValue());
 	}
-
+	
 }

@@ -14,8 +14,8 @@ public class TeseoEaterMain {
   }
 
   public static void main( String[] argv ){
-    //Agent agent = new Agent( new InteractiveAgentProgram( getLanguage() ) );
-	  EaterUniversalAgent universal = new EaterUniversalAgent();
+	  //Agent agent = new Agent( new InteractiveAgentProgram( getLanguage() ) );
+	  EaterUniversalAgent universal = new EaterUniversalAgent(3);
 	  universal.setLanguage( getLanguage() );
 	  Agent agent = new Agent( universal );
 	  TeseoEaterMainFrame frame = new TeseoEaterMainFrame( agent, getLanguage() );

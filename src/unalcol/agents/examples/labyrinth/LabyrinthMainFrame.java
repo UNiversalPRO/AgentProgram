@@ -105,7 +105,7 @@ public class LabyrinthMainFrame extends JFrame {
 
     jMenuItem2.setActionCommand("Guardar");
     jMenuItem2.setText("Guardar");
-    jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
+    jMenuItem2.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jMenuItem2_actionPerformed(e);
       }
@@ -113,14 +113,14 @@ public class LabyrinthMainFrame extends JFrame {
 
     // open menu item
     jMenuItem1.setText("Abrir");
-    jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+    jMenuItem1.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         loadButton_actionPerformed(e);
       }
     });
 
     jMenuItem4.setText("Guardar Como..");
-    jMenuItem4.addActionListener(new java.awt.event.ActionListener() {
+    jMenuItem4.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jMenuItem4_actionPerformed(e);
       }
@@ -134,14 +134,14 @@ public class LabyrinthMainFrame extends JFrame {
     this.jMenuAgentProgram.setText("Control Agente");
     this.jMenuInteractiveAgentProgram.setText("Interactivo");
     this.jMenuAgentProgram.add(this.jMenuInteractiveAgentProgram);
-    this.jMenuInteractiveAgentProgram.addActionListener(new java.awt.event.ActionListener() {
+    this.jMenuInteractiveAgentProgram.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jMenuInteractiveAgentProgram_actionPerformed(e);
       }
     });
     this.jMenuLoadAgentProgram.setText("Cargar");
     this.jMenuAgentProgram.add(this.jMenuLoadAgentProgram);
-    this.jMenuLoadAgentProgram.addActionListener(new java.awt.event.ActionListener() {
+    this.jMenuLoadAgentProgram.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jMenuLoadAgentProgram_actionPerformed(e);
       }
@@ -162,7 +162,7 @@ public class LabyrinthMainFrame extends JFrame {
     gridLayout2.setColumns(2);
     gridLayout2.setRows(3);
 //    multiChart1.setDataChart(new com.klg.jclass.chart.beans.MultiDataChartWrapper("(data1 SCATTER_PLOT)(data2 SCATTER_PLOT)","(data1 x1)(data2 x1)","(data1 y1)(data2 y1)"));
-    drawArea.addMouseListener(new java.awt.event.MouseAdapter() {
+    drawArea.addMouseListener(new MouseAdapter() {
       public void mouseClicked(MouseEvent e) {
         drawArea_mouseClicked(e);
       }
@@ -174,14 +174,14 @@ public class LabyrinthMainFrame extends JFrame {
     jTextField2.setPreferredSize(new Dimension(37, 20));
     jTextField2.setText("0");
     jButton1.setText("Locate");
-    jButton1.addActionListener(new java.awt.event.ActionListener() {
+    jButton1.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jButton1_actionPerformed(e);
       }
     });
     jButton2.setToolTipText("");
     jButton2.setText("Simulate");
-    jButton2.addActionListener(new java.awt.event.ActionListener() {
+    jButton2.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jButton2_actionPerformed(e);
       }
@@ -283,7 +283,7 @@ public class LabyrinthMainFrame extends JFrame {
         AgentProgram agent_program = (AgentProgram)clas.newInstance();
 
         Class mainArgType[] = {(new SimpleLanguage(null,null)).getClass()};
-        java.lang.reflect.Method main = clas.getMethod("setLanguage", mainArgType);
+        Method main = clas.getMethod("setLanguage", mainArgType);
         Object argsArray[] = {language};
         main.invoke(agent_program, argsArray);
 

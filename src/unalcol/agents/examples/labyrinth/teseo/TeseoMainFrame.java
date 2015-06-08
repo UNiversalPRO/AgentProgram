@@ -32,7 +32,7 @@ public class TeseoMainFrame extends LabyrinthMainFrame {
         this.setSize(new Dimension(660, 740));
         this.jMenuEditAgentProgram.setText("Editar");
         //this.jMenuAgentProgram.add(this.jMenuEditAgentProgram);
-        this.jMenuEditAgentProgram.addActionListener(new java.awt.event.ActionListener() {
+        this.jMenuEditAgentProgram.addActionListener(new ActionListener() {
         public void actionPerformed(ActionEvent e) {
             ide.setVisible(true);
         }

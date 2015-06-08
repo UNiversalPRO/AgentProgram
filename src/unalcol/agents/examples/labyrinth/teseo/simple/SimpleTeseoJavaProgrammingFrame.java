@@ -80,12 +80,12 @@ public class SimpleTeseoJavaProgrammingFrame extends JFrame {
     jToolBar1.add(jOpenButton);
     jToolBar1.add(jSaveButton);
     jToolBar1.add(jCompileButton);
-    jPanel2.add(jScrollPane1, java.awt.BorderLayout.CENTER);
+    jPanel2.add(jScrollPane1, BorderLayout.CENTER);
     jScrollPane1.getViewport().add(jTextArea1, null);
-    jPanel2.add(jToolBar1, java.awt.BorderLayout.NORTH);
-    jPanel2.add(jLogPanel, java.awt.BorderLayout.SOUTH);
-    this.getContentPane().add(jPanel2, java.awt.BorderLayout.CENTER);
-    jLogPanel.add(this.theLogPanel, java.awt.BorderLayout.CENTER);
+    jPanel2.add(jToolBar1, BorderLayout.NORTH);
+    jPanel2.add(jLogPanel, BorderLayout.SOUTH);
+    this.getContentPane().add(jPanel2, BorderLayout.CENTER);
+    jLogPanel.add(this.theLogPanel, BorderLayout.CENTER);
   }
 
 

@@ -49,7 +49,7 @@ public class TeseoEaterMainFrame extends LabyrinthMainFrame {
     jMenu2.setText("Edit");
     jMenuItem8 = new JMenuItem();
     jMenuItem8.setText("Resource");
-    jMenuItem8.addActionListener(new java.awt.event.ActionListener() {
+    jMenuItem8.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jMenuItem8_actionPerformed(e);
       }
@@ -59,7 +59,7 @@ public class TeseoEaterMainFrame extends LabyrinthMainFrame {
     jMenuItem12.setToolTipText("");
     jMenuItem12.setActionCommand("Treasure");
     jMenuItem12.setText("Treasure");
-    jMenuItem12.addActionListener(new java.awt.event.ActionListener() {
+    jMenuItem12.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jMenuItem12_actionPerformed(e);
       }
@@ -67,7 +67,7 @@ public class TeseoEaterMainFrame extends LabyrinthMainFrame {
 
     jMenuItem13 = new JMenuItem();
     jMenuItem13.setText("Agent");
-    jMenuItem13.addActionListener(new java.awt.event.ActionListener() {
+    jMenuItem13.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jMenuItem13_actionPerformed(e);
       }

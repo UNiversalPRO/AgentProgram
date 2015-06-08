@@ -1,5 +1,6 @@
 package unalcol.agents.examples.labyrinth.multeseo.universalEater;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Random;
@@ -14,7 +15,7 @@ import java.util.Map.Entry;
 public class EaterUniversalAgent extends EaterTeseoAgentProgram {
 	
 	private TreeMap<Integer, TreeMap<Integer, Integer[]>> memory;
-	private TreeSet<Integer> badFood;//X, Y //1: true 2: false
+	private TreeMap<Integer,Double> food;//X, Y //1: true 2: false /Probabilidad 
 	private TreeMap<Node, TreeMap<Node, Integer[]>> G; //[peso, salida]
 	private TreeSet<Node> completeNodes;
 	private LinkedList<Integer> ways;
@@ -38,14 +39,14 @@ public class EaterUniversalAgent extends EaterTeseoAgentProgram {
 	private int compass;
 	private int lastEnergy = 20;
 	
-	private boolean id = false;
+	private int id = 0;
 	private boolean eatYet = false;
 	
 	
 	public EaterUniversalAgent() {
 		memory = new TreeMap<Integer, TreeMap<Integer, Integer[]>>(); // pos X, pos Y [PF, PD, PA, PI]
 		G = new TreeMap<Node, TreeMap<Node,Integer[]>>(); // para dijkstra
-		badFood = new TreeSet<Integer>();
+		food = new TreeMap<Integer, Double>();
 		ways = new LinkedList<Integer>();
 		completeNodes = new TreeSet<Node>();
 		posX = 0;
@@ -56,9 +57,7 @@ public class EaterUniversalAgent extends EaterTeseoAgentProgram {
 		
 	}
 
-	
-
-	public EaterUniversalAgent(boolean id) { // AGENTE DE PRUEBAS
+	public EaterUniversalAgent(int id) { // AGENTE DE PRUEBAS
 		this();
 		this.id = id;
 	}
@@ -115,7 +114,7 @@ public class EaterUniversalAgent extends EaterTeseoAgentProgram {
 		}
 
 		// ////////////////////Imprimir si es agente de pruebas
-		 if(id){
+		 if(id == 1){
 			 System.out.println( "anterior = "+preX +", "+ preY );
 			 for ( int i = 0; i < 4; i++ ) {
 			 System.out.print( memory.get( preX ).get( preY )[i] + " " );
@@ -251,7 +250,7 @@ public class EaterUniversalAgent extends EaterTeseoAgentProgram {
 			
 			if( completeNodes.contains( thisNode ) ){
 				
-				if(id){
+				if(id == 2){
 					System.out.print("{");
 					for( Node a : G.keySet() ){
 						System.out.print(a+"={");
@@ -452,20 +451,258 @@ public class EaterUniversalAgent extends EaterTeseoAgentProgram {
 		
 		int tmpLast = lastEnergy;
 		lastEnergy = energy;
-		//TODO BD o arbol de decisiones si probar o no?
 		
-		if(badFood.contains(code)){
+		if( energy == tmpLast){ //se canso de comer		
 			return false;
 		}
-		if( energy == tmpLast){
+		if( food.containsKey(code) && food.get(code) == 0.0 ){ //sabe que la comida es mala
 			return false;
 		}
-		if( tmpLast >= energy && eatYet ){
-			badFood.add(code);
+		if( tmpLast > energy && eatYet ){ //probo una comida mala
+			food.put(code, 0.0);
 			return false;
+		}
+		if( tmpLast <= energy && eatYet ){ //probo una comida buena
+			food.put(code, 1.0);
+		}
+		
+		if( /* !food.isEmpty() && */ ( !food.containsKey(code) || (food.get(code) != 1.0 && food.get(code) != 0.0) ) ){ //no sabe si la comida es buena o mala
+			
+			if( energy <= 4 ){ // si ya esta apunto de morirse coma
+				eatYet = true;
+				return true;
+			}
+			boolean eat = entropyOrder(energy, code);
+			if(!eat){
+				food.put( code, probability( code ) );
+				return false;
+			}
 		}
 		eatYet = true;
 		return true;
+	}
+	
+	private double probability( int code ){
+		double percent = 0.0;
+
+		for (int i = 0; i < 4; i++) {
+			percent += eatFeature( i, code );
+		}
+		percent /= 4.0;
+		
+		if(id == 3){
+			System.out.println("Probality of food: " + percent);
+		}
+		return percent;
+	}
+	
+	
+	/**
+	 * es ordenar cada caracteristica dependiendo de su entropia
+	 * @return si come o no come
+	 */
+	private boolean entropyOrder( int energy, int code ){
+		
+		TreeMap<Double, ArrayList<Integer>> entropies = new TreeMap<Double, ArrayList<Integer>>();
+		ArrayList<Double> enti = new ArrayList<Double>();
+	
+		enti.add(entropyFeature(0)); //color
+		enti.add(entropyFeature(1)); //figura
+		enti.add(entropyFeature(2)); //tamaño
+		enti.add(entropyFeature(3)); //peso
+		enti.add( normalEntropy(energy) ); //Normal
+		
+		for (int i = 0; i < enti.size(); i++) {
+			if( !entropies.containsKey( enti.get(i) ) ){
+				entropies.put( enti.get(i), new ArrayList<Integer>() );
+			}
+			entropies.get(enti.get(i)).add(i);
+		}
+		
+		Random r = new Random();
+		for ( Entry<Double, ArrayList<Integer>> ent : entropies.entrySet() ) {
+			double percent = 0.0;
+			while( !ent.getValue().isEmpty() ){
+				switch ( ent.getValue().remove( ent.getValue().size() - 1 ) ) {
+				case 0:
+					percent = eatFeature(0, code);
+					if( r.nextDouble() < percent ){
+						return true;
+					}
+					break;
+				case 1:
+					percent = eatFeature(1, code);
+					if( r.nextDouble() < percent ){
+						return true;
+					}
+					break;
+				case 2:
+					percent = eatFeature(2, code);
+					if( r.nextDouble() < percent ){
+						return true;
+					}
+					break;
+				case 3:
+					percent = eatFeature(3, code);
+					if( r.nextDouble() < percent ){
+						return true;
+					}
+					break;
+				default:
+					if( eatNormal( energy, ent.getKey() ) ){
+						return true;
+					}
+					break;
+				}
+			}
+		}
+		
+		return false;
+	}
+	
+	private boolean eatNormal( int energy, double percent ){
+		
+		Random r = new Random();
+		
+		if( id == 3 ){
+			System.out.println("Normal: " + ( 1 - percent ) );
+		}
+		
+		if( r.nextDouble() < percent ){
+			return false;
+		}
+		else{
+			return true;
+		}
+		
+	}
+	
+	private double eatFeature( int id, int code ){
+		
+		double percent = 0.0;
+		double total0 = 0.0;
+		double good0 = 0.0;
+		double total1 = 0.0;
+		double good1 = 0.0;
+		
+		for ( Entry<Integer, Double> food1: food.entrySet() ) {
+			char[] cod = (food1.getKey()+"").toCharArray();
+			double pr = food1.getValue();
+			if(cod[id] == '1'){
+				total1++;
+				good1 += pr;
+			}
+			else{
+				total0++;
+				good0 += pr;
+			}			
+		}
+		
+		char[] foodCode = (code+"").toCharArray();
+		
+		char value = foodCode[id];
+		
+		if(value == '1'){
+			if(total1 == 0){
+				percent = 0.2;
+			}
+			else{
+				percent = good1 / total1;
+			}
+		}
+		else{
+			if(total0 == 0){
+				percent = 0.2;
+			}
+			else{
+				percent = good0 / total0;
+			}
+		}
+		
+		if(this.id == 3){
+			if( id == 0 )
+				System.out.println("Color: "+ percent);
+			if( id == 1 )
+				System.out.println("Figura: "+ percent);
+			if( id == 2 )
+				System.out.println("Tamaño: "+ percent);
+			if( id == 3 )
+				System.out.println("Peso: "+ percent);
+		}
+		
+		return percent;
+	
+	}
+	
+	/**
+	 * saca entropia de la distribucion normal
+	 * @param energy energia del agente
+	 * @return entropia de la normal
+	 */
+	private double normalEntropy(int energy){
+		double entropy = 0.0;
+		
+		if(energy > 20){
+			energy -= (energy - 20);
+		}
+		
+		double distr = normal(20, 10);
+		if( distr > 20 ){
+			distr -= (distr - 20);
+		}
+		if( distr <= energy ){
+			entropy = 1.0;
+		}
+		else{
+			if(distr == 0.0){
+				entropy = 1.0;
+			}else{
+				entropy = (double)(energy) / distr;
+			}
+		}
+		
+		return entropy;
+	}
+	
+	/**
+	 * retorna la entropia de una caracteristica
+	 * @param id  id de cada caracteristica de la comida
+	 * @return entropia de cada caracteristica
+	 */
+	private double entropyFeature( int id ){ //0 forma, 1 color....
+		double entropy = 0.0;
+		double total0 = 0.0;
+		double good0 = 0.0;
+		double total1 = 0.0;
+		double good1 = 0.0;
+		
+		for ( Entry<Integer, Double> food1: food.entrySet() ) {
+			char[] code = (food1.getKey()+"").toCharArray();
+			double percent = food1.getValue();
+			if(code[id] == '1'){
+				total1++;
+				good1 += percent;
+			}
+			else{
+				total0++;
+				good0 += percent;
+			}			
+		}
+		double p1 = 0.0;
+		double p2 = 0.0;
+		if(total0 == 0){
+			p1 = 1;
+		}else{
+			p1 =  ( 1 - Math.abs( 0.5 - ( good0 / total0 ) ) );
+		}
+		if(total1 == 0){
+			p2 = 1;
+		}else{
+			p2 = ( 1 - Math.abs( 0.5 - ( good1 / total1 ) ) );
+		}
+		entropy = ( p1 + p2 ) / 2;
+		
+		return entropy;
 	}
 	
 	public void makeLink( Node node1, Node node2, int weight, int s1, int s2 ){
@@ -527,6 +764,7 @@ public class EaterUniversalAgent extends EaterTeseoAgentProgram {
 		}
 	}
 	
+	
 	private int dijkstra( Node source ){
 		
 		TreeMap<Node, Integer> dist = new TreeMap<>();
@@ -566,7 +804,26 @@ public class EaterUniversalAgent extends EaterTeseoAgentProgram {
 			curr = curr.parent;
 		}
 	}
+
 	
+    /**
+     * Retorna un numero real con una distribucion normal.
+     */
+    public static double normal(double media, double desviacionEstandar) {
+        // se utiliza la forma polar del metodo de Box-Muller
+    	// http://es.wikipedia.org/wiki/Metodo_de_Box-Muller
+        double r, x, y;
+        do {
+        	x = Math.random() * 2.0 - 1.0; // [-1,1]
+        	y = Math.random() * 2.0 - 1.0; // [-1,1]
+            r = x*x + y*y;
+        } while (r >= 1 || r == 0);
+
+        double boxMuller = x * Math.sqrt(-2 * Math.log(r) / r);
+        // Observacion:  x * Math.sqrt(-2 * Math.log(r) / r) is un independiente valor normal
+        
+        return media + desviacionEstandar * boxMuller; 
+    }	
 	@Override
 	public void clearMemories(){
 		memory = new TreeMap<Integer, TreeMap<Integer, Integer[]>>(); // [PF, PD, PA, PI]
