@@ -39,7 +39,6 @@ public class EaterUniversalAgent extends EaterTeseoAgentProgram {
 	private int compass;
 	private int lastEnergy = 20;
 	
-	private int id = 0;
 	private boolean eatYet = false;
 	
 	
@@ -245,6 +244,10 @@ public class EaterUniversalAgent extends EaterTeseoAgentProgram {
 			distance = 0;
 			
 			if( !ways.isEmpty() ){
+				if(id == 2){
+					System.out.println(ways);
+					System.out.println("Salida: " + ways.get(0));
+				}
 				return turn( ways.removeFirst() );
 			}
 			
@@ -268,7 +271,7 @@ public class EaterUniversalAgent extends EaterTeseoAgentProgram {
 				}
 
 				int ret = dijkstra( thisNode );
-				if( ret != 4 ) return turn( dijkstra( thisNode ) );
+				if( ret != 4 ) return turn( ret );
 			}
 			
 			if( numCero == 1 ) {
@@ -466,7 +469,7 @@ public class EaterUniversalAgent extends EaterTeseoAgentProgram {
 			food.put(code, 1.0);
 		}
 		
-		if( /* !food.isEmpty() && */ ( !food.containsKey(code) || (food.get(code) != 1.0 && food.get(code) != 0.0) ) ){ //no sabe si la comida es buena o mala
+		if(  !food.isEmpty() &&  ( !food.containsKey(code) || (food.get(code) != 1.0 && food.get(code) != 0.0) ) ){ //no sabe si la comida es buena o mala
 			
 			if( energy <= 4 ){ // si ya esta apunto de morirse coma
 				eatYet = true;
@@ -474,6 +477,9 @@ public class EaterUniversalAgent extends EaterTeseoAgentProgram {
 			}
 			boolean eat = entropyOrder(energy, code);
 			if(!eat){
+				if(id == 3){
+					System.out.println("Probabilidad de la comida:");
+				}
 				food.put( code, probability( code ) );
 				return false;
 			}
@@ -519,61 +525,60 @@ public class EaterUniversalAgent extends EaterTeseoAgentProgram {
 			entropies.get(enti.get(i)).add(i);
 		}
 		
-		Random r = new Random();
 		for ( Entry<Double, ArrayList<Integer>> ent : entropies.entrySet() ) {
 			double percent = 0.0;
 			while( !ent.getValue().isEmpty() ){
-				switch ( ent.getValue().remove( ent.getValue().size() - 1 ) ) {
-				case 0:
-					percent = eatFeature(0, code);
-					if( r.nextDouble() < percent ){
+				int num = ent.getValue().remove( ent.getValue().size() - 1 );
+				switch ( num ) {
+					case 0:
+						percent = eatFeature(0, code);
+						break;
+					case 1:
+						percent = eatFeature(1, code);
+						break;
+					case 2:
+						percent = eatFeature(2, code);
+						break;
+					case 3:
+						percent = eatFeature(3, code);
+						break;
+					default:
+						percent = eatNormal( energy, ent.getKey() );					
+						break;
+				}
+				
+				if( num == 4 ){ // Normal
+					if( percent > 0.6){
 						return true;
 					}
-					break;
-				case 1:
-					percent = eatFeature(1, code);
-					if( r.nextDouble() < percent ){
+				}
+				else{
+//					double var = 1.0;
+//					if(energy < 20){
+//						//var = ;
+//					}
+					
+					if( percent < 0.3 ){
+						return false;
+					}
+					if( percent > 0.6 ){
 						return true;
 					}
-					break;
-				case 2:
-					percent = eatFeature(2, code);
-					if( r.nextDouble() < percent ){
-						return true;
-					}
-					break;
-				case 3:
-					percent = eatFeature(3, code);
-					if( r.nextDouble() < percent ){
-						return true;
-					}
-					break;
-				default:
-					if( eatNormal( energy, ent.getKey() ) ){
-						return true;
-					}
-					break;
 				}
 			}
 		}
 		
-		return false;
+		return true;
 	}
 	
-	private boolean eatNormal( int energy, double percent ){
+	private double eatNormal( int energy, double percent ){
 		
-		Random r = new Random();
 		
 		if( id == 3 ){
-			System.out.println("Normal: " + ( 1 - percent ) );
+			System.out.println( "Normal: " + ( 1 - percent ) );
 		}
 		
-		if( r.nextDouble() < percent ){
-			return false;
-		}
-		else{
-			return true;
-		}
+		return 1 - percent;
 		
 	}
 	
@@ -604,7 +609,7 @@ public class EaterUniversalAgent extends EaterTeseoAgentProgram {
 		
 		if(value == '1'){
 			if(total1 == 0){
-				percent = 0.2;
+				percent = 0.5;
 			}
 			else{
 				percent = good1 / total1;
@@ -612,7 +617,7 @@ public class EaterUniversalAgent extends EaterTeseoAgentProgram {
 		}
 		else{
 			if(total0 == 0){
-				percent = 0.2;
+				percent = 0.5;
 			}
 			else{
 				percent = good0 / total0;
@@ -646,7 +651,7 @@ public class EaterUniversalAgent extends EaterTeseoAgentProgram {
 			energy -= (energy - 20);
 		}
 		
-		double distr = normal(20, 10);
+		double distr = normal(20, 5);
 		if( distr > 20 ){
 			distr -= (distr - 20);
 		}
@@ -785,6 +790,10 @@ public class EaterUniversalAgent extends EaterTeseoAgentProgram {
 							if( !completeNodes.contains( neighbor.getKey() ) ){
 //								System.out.println( "To node: X:" + neighbor.getKey().x +" Y:" + neighbor.getKey().y );
 								fillWay( neigh );
+								if(id == 2){
+									System.out.println(ways);
+									System.out.println("Salida: " + ways.get(0));
+								}
 								return ways.removeFirst();
 							}
 								
@@ -793,7 +802,9 @@ public class EaterUniversalAgent extends EaterTeseoAgentProgram {
 				}
 			}
 		}
-//		System.out.println( "There aren't a possible node to go" );
+		if(id == 2){
+			System.out.println( "There aren't a possible node to go" );
+		}
 		return 4;
 	} 
 	

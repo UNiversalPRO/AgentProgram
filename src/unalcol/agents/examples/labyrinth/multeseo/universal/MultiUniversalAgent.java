@@ -296,7 +296,7 @@ public class MultiUniversalAgent extends MultiTeseoAgentProgram {
 				}
 
 				int ret = dijkstra( thisNode );
-				if( ret != 4 ) return turn( dijkstra( thisNode ) );
+				if( ret != 4 ) return turn( ret );
 			}
 			
 			if( numCero == 1 ) {

@@ -1,7 +1,5 @@
 package unalcol.agents.examples.labyrinth.multeseo.universalEater;
 
-import java.util.Random;
-
 import unalcol.agents.Action;
 import unalcol.agents.AgentProgram;
 import unalcol.agents.Percept;
@@ -12,7 +10,7 @@ public abstract class EaterTeseoAgentProgram implements AgentProgram {
 
 	protected SimpleLanguage language;
 	protected Vector<String> cmd = new Vector<String>();
-
+	protected int id;//1 - prueba posiciones, 2 - prueba dijkstra, 3 - prueba comida
 	public EaterTeseoAgentProgram() {
 	}
 
@@ -47,7 +45,6 @@ public abstract class EaterTeseoAgentProgram implements AgentProgram {
 	 */
 	public Action compute(Percept p) {
 		if (cmd.size() == 0) {
-		
 			boolean PF = ((Boolean) p.getAttribute(language.getPercept(0)))
 					.booleanValue();
 			boolean PD = ((Boolean) p.getAttribute(language.getPercept(1)))
@@ -167,7 +164,9 @@ public abstract class EaterTeseoAgentProgram implements AgentProgram {
 		cmd.remove(0);
 		if( x.equals( language.getAction(2) ) ){ // advance
 			if( ( ( Boolean ) p.getAttribute( language.getPercept(0) ) ).booleanValue() ){ //pared al frente
-//				System.out.println("*****************************error***********************************");
+				clearMemories();
+				if(id != 0)
+					System.err.println("*****************************error***********************************");
 				return new Action( language.getAction(0) );
 			}
 			move();
